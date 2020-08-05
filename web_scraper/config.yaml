@@ -1,0 +1,20 @@
+#In this file are stored the URLs and the CSS Selector of the web sites that are scraped
+news_sites:
+  eluniversal:
+    url: http://www.eluniversal.com.mx
+    queries:
+      homepage_article_links: '.field-content a'
+      article_body: '.field-name-body'
+      article_title: '.pane-content h1'
+  elpais:
+    url: https://elpais.com
+    queries:
+      homepage_article_links: ".headline a"
+      article_body: '.article_body'
+      article_title: '.a_t'    
+  animalpolitico:
+    url: https://www.animalpolitico.com
+    queries:
+      homepage_article_links: '.ap_note_link'
+      article_body: '.ap_single_content'
+      article_title: '.ap_single_first_title'  
