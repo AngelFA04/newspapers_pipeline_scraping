@@ -31,6 +31,7 @@ def main(filename):
 
     #Adding UID to the DataFrame
     df = _generating_uids_for_rows(df)
+    
     #Clean body rows
     df = _cleaning_body_rows(df)
 
