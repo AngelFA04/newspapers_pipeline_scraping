@@ -57,8 +57,8 @@ def _save_articles(news_site_uid, articles):
 	#Variable to save the date
 	logger.info('Saving article...')
 	now = datetime.datetime.now().strftime('%Y_%m_%d')
-	out_file_name = "extracted_data/{news_site_uid}_{datetime}_articles.csv".format(
-		 												news_site_uid = news_site_uid,
+	out_file_name = "{news_site_uid}_{datetime}_articles.csv".format(
+		 											news_site_uid = news_site_uid,
 														datetime = now )	
 	#Variable for csv headers
 	csv_headers = list(filter(lambda property: not property.startswith('_'), dir(articles[0])))
@@ -81,7 +81,9 @@ def _fetch_article(news_site_uid, host, link):
 	try:
 		article = news.ArticlePage(news_site_uid, _build_link(host, link))
 	except (HTTPError, MaxRetryError) as e:
-		logger.warn('Error while fetching article!', exc_info=False)
+		logger.warning('Error while fetching article!', exc_info=False)
+	except:
+		logger.warning('There was an error.')
 
 	if article and not article.body:
 		logger.warning('Invalid article. There is no body')

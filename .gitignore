@@ -1,6 +1,10 @@
 #My files and folders
 *.csv
 .vscode
+*.db
+others 
+analysis/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
