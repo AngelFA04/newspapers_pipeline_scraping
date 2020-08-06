@@ -5,7 +5,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 import re
 
-
 from requests.exceptions import HTTPError
 from urllib3.exceptions import MaxRetryError
 
@@ -75,6 +74,9 @@ def _save_articles(news_site_uid, articles):
 
 
 def _fetch_article(news_site_uid, host, link):
+	"""
+	It extract the article with its link
+	"""
 	logger.info('Start fetching article at {}' .format(_build_link(host,link)))
 
 	article = None
