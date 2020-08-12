@@ -1,7 +1,7 @@
 import argparse
 import logging
 import hashlib
-
+from numpy import NaN
 import nltk
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('spanish'))
@@ -35,7 +35,7 @@ def main(filename):
     #Clean body rows
     df = _cleaning_body_rows(df)
 
-    import pdb; pdb.set_trace()
+#    import pdb; pdb.set_trace()
 
     #Tokenize title and body
     df = _tokenize_rows(df, 'title')
@@ -45,7 +45,7 @@ def main(filename):
     df = _remove_duplicate_entries(df, 'title')
     
     #This removes all the rows with NaN values
-    #df = _drop_rows_with_missing_values(df)
+    df = _drop_rows_with_missing_values(df)
 
     return df
 
@@ -113,28 +113,32 @@ def _cleaning_body_rows(df):
     return df
 
 
+def tokenize_column(df, column_name):
+    return (
+        df.dropna()
+        .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
+        .apply(lambda tokens: list(filter(lambda token: token.isalpha(), tokens)))
+        .apply(lambda tokens: map(str.lower, tokens))
+        .apply(lambda word_list: list( filter(lambda word: word not in stop_words, word_list)) )
+    )
+
+
 def _tokenize_rows(df, column_name):
     logger.info('Tokenizing DataFrame rows')
-    
-    import pdb; pdb.set_trace()
+ 
     try:
-        df[f'{column_name}_tokens'] = (
-            df[df[column_name].dropna().index]
-            .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
-            .apply(lambda tokens: list(filter(lambda token: token.isalpha(), tokens)))
-            .apply(lambda tokens: map(str.lower, tokens))
-            .apply(lambda word_list: list( filter(lambda word: word not in stop_words, word_list)) )
-        )
+        df[f'{column_name}_tokens'] = tokenize_column(df, column_name)
     except:
         logger.warning(f'There was an error tokenizing the {column_name} column.')    
-        df[f'{column_name}_tokens'] = None
-        df[f'n_tokens_{column_name}'] = None
+        df[f'{column_name}_tokens'] = list()
+        import pdb; pdb.set_trace()
+        df[f'n_tokens_{column_name}'] = df[f'{column_name}_tokens'].apply(len)
         return df
-
-    import pdb; pdb.set_trace()
-
-
+    
+    df[f'{column_name}_tokens'][(df[f'{column_name}_tokens']).isna()] = ''
     df[f'n_tokens_{column_name}'] = df[f'{column_name}_tokens'].apply(len)
+
+    df[f'{column_name}_tokens'][(df[f'{column_name}_tokens']).isna()] = NaN
 
     return df
 

@@ -20,31 +20,21 @@ class NewsScraper(scrapy.Spider):
         self.newspaper_name = website
         self.start_urls = self.current_newspaper['url']
         self.queries = self.current_newspaper['queries']
-        #allowed_domains = ['www.pagina12.com.ar']
 
-
-    
-    ###### Abstraction here
 
     def parse(self, response):
         #Nota promocionada
-    ###### Abstraction here
-
         #nota_promocionada = response.xpath('//div[@class="featured-article__container"]/h2/a/@href').get()
-        
-        #import pdb; pdb.set_trace()
-
         # if nota_promocionada is not None:
         #     yield response.follow(nota_promocionada, callback=self.parse_nota)
 
         #Listado de notas
-    ###### Abstraction here
+
         notas = response.css(self.queries['homepage_article_links']).getall()
 
         for nota in notas:
             yield response.follow(nota, callback=self.parse_nota)
 
-    ###### Abstraction here
         button_next = response.css(self.queries['next_button_link']).get()
 
         if button_next:
@@ -58,8 +48,11 @@ class NewsScraper(scrapy.Spider):
         
         cuerpo = response.css(self.queries['article_body']).getall() #s_nota.find("div", attrs={"class":"article-text"}).text
         
-        if not cuerpo or cuerpo == '':
+        if not cuerpo:
             return None
+        elif cuerpo:
+            if ''.join(cuerpo).strip() == '':
+                return None
 
         titulo = response.css(self.queries['article_title']).get()
         fecha = response.css(self.queries['date']).get()
