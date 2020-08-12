@@ -1,29 +1,29 @@
 import scrapy
 from items import NewsItem
 import yaml
+import os
+from common import config_dict
 
-with open('config.yaml', mode='r') as f:
-    config_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 class NewsScraper(scrapy.Spider):
     name = 'scraper'
 
+    custom_settings = {
+            'FEED_EXPORT_ENCODING':'utf-8',
+            'DEPTH_LIMIT':5,
+            'FEED_FORMAT':'json', 
+    }
     
     def __init__(self, website, *args, **kwargs, ):
         super(NewsScraper, self).__init__(website, *args, **kwargs)
-        self.current_newspaper = config_dict['news_sites'][website]
+        self.current_newspaper = config_dict()['news_sites'][website]
         self.newspaper_name = website
         self.start_urls = self.current_newspaper['url']
         self.queries = self.current_newspaper['queries']
         #allowed_domains = ['www.pagina12.com.ar']
 
 
-    custom_settings = {
-            'FEED_EXPORT_ENCODING':'utf-8',
-            'DEPTH_LIMIT':5,
-            'FEED_FORMAT':'json',
-            
-    }
+    
     ###### Abstraction here
 
     def parse(self, response):
@@ -58,7 +58,7 @@ class NewsScraper(scrapy.Spider):
         
         cuerpo = response.css(self.queries['article_body']).getall() #s_nota.find("div", attrs={"class":"article-text"}).text
         
-        if not cuerpo:
+        if not cuerpo or cuerpo == '':
             return None
 
         titulo = response.css(self.queries['article_title']).get()
@@ -75,7 +75,13 @@ class NewsScraper(scrapy.Spider):
         newspage['url'] = response.url
         newspage['title'] = titulo
         newspage['date'] = fecha
-        newspage['volanta'] = volanta
+    #    newspage['volanta'] = volanta
         newspage['body'] = cuerpo
 
         yield newspage
+
+
+if __name__ == "__main__":
+    pass
+    with open('config.yaml', mode='r') as f:
+        config_dict = yaml.load(f, Loader=yaml.FullLoader)

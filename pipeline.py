@@ -7,8 +7,8 @@ import re
 
 
 logger = logging.getLogger(__name__)
-#news_sites_uids = ['eluniversal', 'animalpolitico', 'elpais']
-news_sites_uids = ['elpais']
+news_sites_uids = ['eluniversal', 'animalpolitico', 'elpais']
+#news_sites_uids = ['elpais']
 
 
 def main():
@@ -22,7 +22,7 @@ def _extract():
     for news_site_uid in news_sites_uids:
         ## Execute the extractions of all the news sites
         #subprocess.run(['python', 'main.py', news_site_uid], cwd='./extract')
-        #os.system(f'python ./extract/main.py {news_site_uid}')
+        os.system(f'python ./extract/main.py {news_site_uid} {news_site_uid}')
         
         ## Move all the .csv file generated with the scraper to the 'tranform' directory
         r = re.compile(r'.*\.(csv|json)')
@@ -33,9 +33,9 @@ def _extract():
             #import pdb; pdb.set_trace()
 
             if source.endswith('.json'):
-                shutil.copy(f'./extract/{source}', f'./transform/{news_site_uid}_.json')
+                shutil.move(f'./extract/{source}', f'./transform/{news_site_uid}_.json')
             elif source.endswith('.csv'):
-                shutil.copy(f'./extract/{source}', f'./transform/{news_site_uid}_.csv')
+                shutil.move(f'./extract/{source}', f'./transform/{news_site_uid}_.csv')
     
         except:
             logger.warning(f'There is not csv or json file asociated to {news_site_uid}')
@@ -45,9 +45,9 @@ def _transform():
     
     r = re.compile(r'.*\.(csv|json)')
 #    extension = list(filter(r.match, os.listdir(path='./extract')))[0][-3:]
-    extension = re.search(r'(\.csv|\.json)', str(os.listdir(path='./extract'))).group(1)[1:]
+    extension = re.search(r'(\.csv|\.json)', str(os.listdir(path='./transform'))).group(1)[1:]
 
-    import pdb;pdb.set_trace()
+    #import pdb;pdb.set_trace()
 
     for news_site_uid in news_sites_uids:
         dirty_data_filename = f'{news_site_uid}_.{extension}'
@@ -57,8 +57,9 @@ def _transform():
             subprocess.run(['python', 'main.py', f'{news_site_uid}_.{extension}'], cwd='./transform')
 
             ## Remove the dirty data file
-        #    os.remove(f'./transform/{news_site_uid}_.csv')
+            os.remove(f'./transform/{news_site_uid}_.{extension}')
             ## Move the clean data file into 'load' directory with the '{news_site_uid}.csv' name
+         
             shutil.move(f'./transform/clean_{news_site_uid}_.csv', f'./load/{news_site_uid}_.csv')
         except:
             logger.warning(f'There is not csv file asociated to {news_site_uid} in the "transform" directory')
