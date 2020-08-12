@@ -35,6 +35,7 @@ def main(filename):
     #Clean body rows
     df = _cleaning_body_rows(df)
 
+    import pdb; pdb.set_trace()
 
     #Tokenize title and body
     df = _tokenize_rows(df, 'title')
@@ -44,13 +45,16 @@ def main(filename):
     df = _remove_duplicate_entries(df, 'title')
     
     #This removes all the rows with NaN values
-    df = _drop_rows_with_missing_values(df)
+    #df = _drop_rows_with_missing_values(df)
 
     return df
 
 def _read_data(filename):
     logger.info(f'Reading file {filename}')
-    return pd.read_csv(filename)
+    if filename.endswith('.csv'):
+        return pd.read_csv(filename, encoding='utf-8')
+    elif filename.endswith('.json'):
+        return pd.read_json(filename, encoding='utf-8')
 
 
 def _extract_newspaper_uid(filename):
@@ -111,14 +115,24 @@ def _cleaning_body_rows(df):
 
 def _tokenize_rows(df, column_name):
     logger.info('Tokenizing DataFrame rows')
+    
+    import pdb; pdb.set_trace()
+    try:
+        df[f'{column_name}_tokens'] = (
+            df[df[column_name].dropna().index]
+            .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
+            .apply(lambda tokens: list(filter(lambda token: token.isalpha(), tokens)))
+            .apply(lambda tokens: map(str.lower, tokens))
+            .apply(lambda word_list: list( filter(lambda word: word not in stop_words, word_list)) )
+        )
+    except:
+        logger.warning(f'There was an error tokenizing the {column_name} column.')    
+        df[f'{column_name}_tokens'] = None
+        df[f'n_tokens_{column_name}'] = None
+        return df
 
-    df[f'{column_name}_tokens'] = (
-        df.dropna()
-        .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
-        .apply(lambda tokens: list(filter(lambda token: token.isalpha(), tokens)))
-        .apply(lambda tokens: map(str.lower, tokens))
-        .apply(lambda word_list: list( filter(lambda word: word not in stop_words, word_list)) )
-    )
+    import pdb; pdb.set_trace()
+
 
     df[f'n_tokens_{column_name}'] = df[f'{column_name}_tokens'].apply(len)
 
@@ -143,8 +157,8 @@ if __name__ == "__main__":
 
     df = main(args.filename)
     print(df)
-
+    
     #Exporting to a CSV
-    filename = f'clean_{args.filename}'
+    filename = f"clean_{sub(r'(.csv|.json)', '', args.filename)}"
     logger.info(f'Saving DataFrame in CSV File in {filename}')
-    df.to_csv(f'{filename}', encoding='utf-8', header=True, index_label='uid')
+    df.to_csv(f'{filename}.csv', encoding='utf-8', header=True, index_label='uid')

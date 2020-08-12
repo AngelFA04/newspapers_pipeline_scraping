@@ -21,28 +21,43 @@ def _extract():
     logger.info('Starting extract process')
     for news_site_uid in news_sites_uids:
         ## Execute the extractions of all the news sites
-        subprocess.run(['python', 'main.py', news_site_uid], cwd='./extract')
+        #subprocess.run(['python', 'main.py', news_site_uid], cwd='./extract')
         #os.system(f'python ./extract/main.py {news_site_uid}')
         
         ## Move all the .csv file generated with the scraper to the 'tranform' directory
-        r = re.compile(r'.*\.csv')
+        r = re.compile(r'.*\.(csv|json)')
+        extension = re.search(r'(\.csv|\.json)', str(os.listdir(path='./extract'))).group(1)
+
         try:
             source = list(filter(r.match, os.listdir(path='./extract')))[0]
-            shutil.move(f'./extract/{source}', f'./transform/{news_site_uid}_.csv')
+            #import pdb; pdb.set_trace()
+
+            if source.endswith('.json'):
+                shutil.copy(f'./extract/{source}', f'./transform/{news_site_uid}_.json')
+            elif source.endswith('.csv'):
+                shutil.copy(f'./extract/{source}', f'./transform/{news_site_uid}_.csv')
+    
         except:
-            logger.warning(f'There is not csv file asociated to {news_site_uid}')
+            logger.warning(f'There is not csv or json file asociated to {news_site_uid}')
 
 def _transform():
     logger.info('Starting transform process')
+    
+    r = re.compile(r'.*\.(csv|json)')
+#    extension = list(filter(r.match, os.listdir(path='./extract')))[0][-3:]
+    extension = re.search(r'(\.csv|\.json)', str(os.listdir(path='./extract'))).group(1)[1:]
+
+    import pdb;pdb.set_trace()
+
     for news_site_uid in news_sites_uids:
-        dirty_data_filename = f'{news_site_uid}_.csv'
-        clean_data_filename = f'clean_{news_site_uid}.csv'
+        dirty_data_filename = f'{news_site_uid}_.{extension}'
+        clean_data_filename = f'clean_{news_site_uid}.{extension}'
         try:
             ## Execute main.py to clean the data and create clean data files
-            subprocess.run(['python', 'main.py', f'{news_site_uid}_.csv'], cwd='./transform')
+            subprocess.run(['python', 'main.py', f'{news_site_uid}_.{extension}'], cwd='./transform')
 
             ## Remove the dirty data file
-            os.remove(f'./transform/{news_site_uid}_.csv')
+        #    os.remove(f'./transform/{news_site_uid}_.csv')
             ## Move the clean data file into 'load' directory with the '{news_site_uid}.csv' name
             shutil.move(f'./transform/clean_{news_site_uid}_.csv', f'./load/{news_site_uid}_.csv')
         except:
