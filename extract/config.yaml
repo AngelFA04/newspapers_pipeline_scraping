@@ -1,34 +1,38 @@
 #In this file are stored the URLs and the CSS Selector of the web sites that are scraped
+
 news_sites:
   eluniversal:
     url: [http://www.eluniversal.com.mx]
     queries:
       homepage_article_links: '.field-content a::attr(href), h2.titulo a::attr(href), a::attr(href)' #contains title
+      article_title: '.h1::text, .ceh-Opinion_Titulo h2::text'
       article_body: '.field-name-body p::text, .field-name-body p::text'
       date: 'span.ce12-DatosArticulo_ElementoFecha::text'
       volanta: .nothing''
-      article_title: '.h1::text, .ceh-Opinion_Titulo h2::text'
       next_button_link: ''
+  
   elpais:
     url: [https://elpais.com]
     queries:
       homepage_article_links: ".headline a::attr(href)"
+      article_title: 'h1.a_t::text'
       article_body: '.article_body p::text'
       date: 'a.a_ti::text'
       volanta: 'h2.a_st::text'
-      article_title: 'h1.a_t::text'
       next_button_link: ''    
+  
   animalpolitico:
     url: [https://www.animalpolitico.com]
     queries:
       homepage_article_links: '.ap_note_link::attr(href)'
+      article_title: '.ap_single_first_title::text'
       article_body: '.ap_single_content p::text'
       date: '.ap_single_first_info_date::text'
       volanta: ''
-      article_title: '.ap_single_first_title::text'
       next_button_link: ''  
+  
   pagina12:
-    url: ['https://www.pagna12.com.ar/secciones/el-pais',
+    url: [           'https://www.pagina12.com.ar/secciones/el-pais',
                      'https://www.pagina12.com.ar/secciones/economia',
                      'https://www.pagina12.com.ar/secciones/sociedad',
                      'https://www.pagina12.com.ar/suplementos/cultura-y-espectaculos',
@@ -37,9 +41,29 @@ news_sites:
                      'https://www.pagina12.com.ar/secciones/deportes',
                      'https://www.pagina12.com.ar/secciones/psicologia']
     queries:
-      homepage_article_links: ".headline a"
-      article_body: '.article_body p'
-      date: ''
+      homepage_article_links: ".article-list a::attr(href)"
+      article_title: 'h1.article-title::text'
+      article_body: '.article-body p::text'
+      date: 'div.time > span[pubdate]::text'
       volanta: ''
-      article_title: '.a_t'
-      next_button_link: ''     
+      next_button_link: 'a.pagination-btn-next::attr(href) '
+  
+  robotitus:
+    url: [https://www.robotitus.com]
+    queries:
+      homepage_article_links: 'h2.post-title a::attr(href)'
+      article_title: 'h1.post-title::text'
+      article_body: '.post-container p::text,p>span::text'
+      date: 'time.value-title::text'
+      volanta: ''
+      next_button_link: 'a.next.page-numbers::attr(href)'
+  
+  milenio:
+    url: [https://www.milenio.com]
+    queries:
+      homepage_article_links: 'div.title a::attr(href)'
+      article_title: 'h1.title::text'
+      article_body: 'div#content-body>p::text'
+      date: 'time::attr(datetime)'
+      volanta: 'h2.summary::text'
+      next_button_link: ''

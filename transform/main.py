@@ -20,9 +20,11 @@ def main(filename):
     """
     Main function
     """
+    
     logger.info('Starting cleaning process')
 
     df = _read_data(filename)
+
     newspaper_uid = _extract_newspaper_uid(filename)
     df = _add_newspaper_uid_column(df, newspaper_uid)
     df = _extract_host(df)
@@ -34,8 +36,6 @@ def main(filename):
     
     #Clean body rows
     df = _cleaning_body_rows(df)
-
-#    import pdb; pdb.set_trace()
 
     #Tokenize title and body
     df = _tokenize_rows(df, 'title')
@@ -108,7 +108,8 @@ def _generating_uids_for_rows(df):
 
 def _cleaning_body_rows(df):
 
-    df['body'] = df.apply(lambda row: sub(r'[\n\r]',r'',row['body']) ,  axis=1)
+    df['body'] = df.apply(lambda row: sub(r'[\t\n\r]',r'',row['body']) ,  axis=1)
+    df['title'] = df.apply(lambda row: sub(r'[\t\n\r]',r'',row['title']) ,  axis=1)
 
     return df
 
@@ -131,7 +132,6 @@ def _tokenize_rows(df, column_name):
     except:
         logger.warning(f'There was an error tokenizing the {column_name} column.')    
         df[f'{column_name}_tokens'] = list()
-        import pdb; pdb.set_trace()
         df[f'n_tokens_{column_name}'] = df[f'{column_name}_tokens'].apply(len)
         return df
     

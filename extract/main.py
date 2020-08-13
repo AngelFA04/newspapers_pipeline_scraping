@@ -2,9 +2,16 @@ from scrapy.crawler import CrawlerProcess
 from news_scraper import NewsScraper
 import argparse
 
-
+DEBUGGING = True
 
 def run(newspaper, output):
+    """
+    Main function of the spider.
+
+    Args:
+        newspaper ([str]): [Website name of the newspaper. It has to be in the config.yaml]
+        output ([type]): [Filename of the output]
+    """
     process = CrawlerProcess(settings={'FEED_URI':f'./extract/{output}.json'})
 
     process.crawl(NewsScraper, website=newspaper)

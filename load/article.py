@@ -6,6 +6,7 @@ class Article(Base):
     id = Column(String, primary_key=True)
     title = Column(String)
     body = Column(String)
+    date = Column(String)
     host = Column(String)
     newspaper_uid = Column(String)
     n_tokens_body = Column(Integer)
@@ -18,6 +19,7 @@ class Article(Base):
                  uid,
                  title,
                  body,
+                 date,
                  host,
                  newspaper_uid,
                  n_tokens_body,
@@ -29,6 +31,7 @@ class Article(Base):
                 self.id = uid
                 self.title = title
                 self.body = body
+                self.date = date
                 self.host = host
                 self.newspaper_uid = newspaper_uid
                 self.n_tokens_body = n_tokens_title

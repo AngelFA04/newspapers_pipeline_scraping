@@ -4,13 +4,17 @@ import yaml
 import os
 from common import config_dict
 
+DEPTH_LIMIT = 6
+_DEBUGGING = False
+import pdb
+
 
 class NewsScraper(scrapy.Spider):
     name = 'scraper'
 
     custom_settings = {
             'FEED_EXPORT_ENCODING':'utf-8',
-            'DEPTH_LIMIT':5,
+            'DEPTH_LIMIT':DEPTH_LIMIT,
             'FEED_FORMAT':'json', 
     }
     
@@ -23,17 +27,11 @@ class NewsScraper(scrapy.Spider):
 
 
     def parse(self, response):
-        #Nota promocionada
-        #nota_promocionada = response.xpath('//div[@class="featured-article__container"]/h2/a/@href').get()
-        # if nota_promocionada is not None:
-        #     yield response.follow(nota_promocionada, callback=self.parse_nota)
 
-        #Listado de notas
+        news = response.css(self.queries['homepage_article_links']).getall()
 
-        notas = response.css(self.queries['homepage_article_links']).getall()
-
-        for nota in notas:
-            yield response.follow(nota, callback=self.parse_nota)
+        for new in news:
+            yield response.follow(new, callback=self.parse_new)
 
         button_next = response.css(self.queries['next_button_link']).get()
 
@@ -41,40 +39,47 @@ class NewsScraper(scrapy.Spider):
             yield response.follow(button_next, callback=self.parse)
          
 
-    def parse_nota(self, response):
-        """
-     FULL OF ABSTRACTION 
+    def parse_new(self, response):
+        """Extract the data from each new.
+
+        Args:
+            response ([http.response]): [Http response from the news article]
+
+        Returns:
+            newspage[item object]: [A dictionary with the data from the news]
         """
         
-        cuerpo = response.css(self.queries['article_body']).getall() #s_nota.find("div", attrs={"class":"article-text"}).text
+        body = response.css(self.queries['article_body']).getall() #s_nota.find("div", attrs={"class":"article-text"}).text
         
-        if not cuerpo:
+        if not body:
             return None
-        elif cuerpo:
-            if ''.join(cuerpo).strip() == '':
+        elif body:
+            if ''.join(body).strip() == '':
                 return None
 
-        titulo = response.css(self.queries['article_title']).get()
-        fecha = response.css(self.queries['date']).get()
-        cuerpo = ''.join(cuerpo)
-        #import pdb; pdb.set_trace()
+        title = response.css(self.queries['article_title']).get(default='')
+        date = response.css(self.queries['date']).get()
+        body = ''.join(body)
+
         try:
             volanta = response.css(self.queries['volanta']).get() #s_nota.find("div", attrs={"class":"article-prefix"}).text
         except:
-            volanta = None
+            volanta = ''
+        
+        if _DEBUGGING:
+            pdb.set_trace()
 
         newspage = NewsItem()
 
         newspage['url'] = response.url
-        newspage['title'] = titulo
-        newspage['date'] = fecha
+        newspage['title'] = title
+        newspage['date'] = date
     #    newspage['volanta'] = volanta
-        newspage['body'] = cuerpo
+        newspage['body'] = body
 
         yield newspage
 
 
 if __name__ == "__main__":
-    pass
     with open('config.yaml', mode='r') as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)

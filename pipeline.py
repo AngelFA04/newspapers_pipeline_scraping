@@ -4,11 +4,15 @@ import subprocess
 import os
 import shutil
 import re
+from extract.common import config_dict as config
+
 
 
 logger = logging.getLogger(__name__)
-news_sites_uids = ['eluniversal', 'animalpolitico', 'elpais']
-#news_sites_uids = ['elpais']
+
+#List of all the news websites stored in extract/config.yaml
+news_sites_uids = [site for site in config()['news_sites']]
+
 
 
 def main():

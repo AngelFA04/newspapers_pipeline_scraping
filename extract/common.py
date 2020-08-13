@@ -11,7 +11,6 @@ def config_dict():
     global __config
       
     if not __config:
-        #import pdb; pdb.set_trace()
         with open('./extract/config.yaml', encoding='utf-8') as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         

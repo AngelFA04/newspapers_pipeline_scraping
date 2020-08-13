@@ -14,14 +14,12 @@ def main(filename):
     session = Session()
     articles = pd.read_csv(filename, encoding='utf-8')
 
-    #To append diferent files
-    #
-
     for index, row in articles.iterrows():
         logger.info(f'Loading article uid {row["uid"]} into DB')
         article = Article(row['uid'],
                           row['title'],
                           row['body'],
+                          row['date'],
                           row['host'],
                           row['newspaper_uid'],
                           row['n_tokens_body'],
